@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  product:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/productdb
+    command: npm run start:prod
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mongodb-test:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_DATABASE: products-test
+    command: mongod --quiet --logpath /dev/null
+    networks:
+      - test-network
+
+  products-service-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://mongodb-test:27017/products-test
+    depends_on:
+      - mongodb-test
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
