@@ -1,99 +1,129 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Products Microservice
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS-based products microservice with local Kubernetes deployment using Minikube.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
+- NestJS (TypeScript)
+- MongoDB
+- Kubernetes (Minikube)
+- Prometheus & Grafana for monitoring
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
+## Prerequisites
+1. Install required tools:
 ```bash
-$ npm install
+winget install Kubernetes.minikube
+winget install Kubernetes.kubectl
+winget install Docker.DockerDesktop
 ```
 
-## Compile and run the project
-
+2. Start Minikube:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+minikube start
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+## Project Structure
+```
+products-microservice/
+├── src/                   # NestJS application code
+├── k8s/                   # Kubernetes configurations
+│   ├── deployment.yaml    # Main application deployment
+│   ├── mongodb.yaml       # MongoDB database
+│   └── monitoring.yaml    # Prometheus & Grafana
+├── Dockerfile            # Application container
+└── docker-compose.dev.yml # Local development without K8s
 ```
 
-## Deployment
+## Development
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### Local Development (without Kubernetes)
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Start the development environment
+docker-compose -f docker-compose.dev.yml up
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Local Kubernetes Development
+```bash
+# Start Minikube
+minikube start
 
-## Resources
+# Build the application image in Minikube's Docker
+eval $(minikube docker-env)
+docker build -t products-service:latest .
 
-Check out a few resources that may come in handy when working with NestJS:
+# Deploy to Kubernetes
+kubectl apply -f k8s/
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Get service URLs
+minikube service products-service --url
+minikube service prometheus --url
+minikube service grafana --url
+```
 
-## Support
+### Accessing Services
+- Products API: `http://<minikube-url>:port`
+- Prometheus: `http://<minikube-url>:port`
+- Grafana: `http://<minikube-url>:port` (admin/admin)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Kubernetes Features
 
-## Stay in touch
+### Scaling
+```bash
+# Scale the application
+kubectl scale deployment products-service --replicas=3
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# View pods
+kubectl get pods -w
+```
 
-## License
+### Monitoring
+1. Access Grafana dashboard
+2. Import MongoDB dashboard (ID: 2583)
+3. Import Node.js dashboard (ID: 11159)
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Logs
+```bash
+# View application logs
+kubectl logs -f deployment/products-service
+
+# View MongoDB logs
+kubectl logs -f statefulset/mongodb
+```
+
+### Debugging
+```bash
+# Get pod details
+kubectl describe pod <pod-name>
+
+# Shell into a pod
+kubectl exec -it <pod-name> -- /bin/bash
+
+# View resource usage
+kubectl top pods
+```
+
+## API Endpoints
+- `GET /products`: List all products
+- `POST /products`: Create a product
+- `GET /products/:id`: Get a product
+- `PUT /products/:id`: Update a product
+- `DELETE /products/:id`: Delete a product
+- `GET /health`: Health check endpoint
+
+## Health Checks
+The application includes:
+- Readiness probe
+- Liveness probe
+- MongoDB connection health check
+
+## Monitoring
+- Prometheus metrics at `/metrics`
+- Grafana dashboards for:
+  - Node.js metrics
+  - MongoDB metrics
+  - Kubernetes cluster metrics
+
+## Development Tips
+1. Use `kubectl get all` to view all resources
+2. Monitor logs with `kubectl logs`
+3. Use `minikube dashboard` for GUI
+4. Check health with `kubectl describe`
