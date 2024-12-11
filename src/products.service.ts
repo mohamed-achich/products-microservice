@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
+
 
 interface CreateProductRequest {
   name: string;
@@ -13,6 +14,7 @@ interface CreateProductRequest {
 interface ProductList {
   products: Product[];
 }
+
 
 @Injectable()
 export class ProductsService {
@@ -27,18 +29,46 @@ export class ProductsService {
 
   async findAll(): Promise<ProductList> {
     const products = await this.productModel.find().exec();
-    return { products : products };
-  }
-
+    return { products };
+  } 
   async findOne(id: string): Promise<Product> {
-    return this.productModel.findById(id).exec();
+    const product = await this.productModel.findById(id).exec();
+    if (!product) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+    return product;
   }
 
-  async update(id: string, data: CreateProductRequest): Promise<Product> {
-    return this.productModel.findByIdAndUpdate(id, data, { new: true }).exec();
+  async update(id: string,  data: CreateProductRequest): Promise<Product> {
+    const updatedProduct = await this.productModel
+      .findByIdAndUpdate(id, data, { new: true })
+      .exec();
+    if (!updatedProduct) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+    return updatedProduct;
+  }
+
+  async updateStock(id: string, quantityChange: number): Promise<Product> {
+    const product = await this.findOne(id);
+    const newStock = product.quantity + quantityChange;
+    
+    if (newStock < 0) {
+      throw new Error(`Cannot reduce stock below 0 for product ${id}`);
+    }
+
+    return this.productModel.findByIdAndUpdate(
+      id,
+      { $inc: { quantity: quantityChange } },
+      { new: true }
+    ).exec();
   }
 
   async remove(id: string): Promise<Product> {
-    return this.productModel.findByIdAndDelete(id).exec();
+    const deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
+    if (!deletedProduct) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+    return deletedProduct;
   }
 }
