@@ -1,27 +1,47 @@
 version: '3.8'
+
 services:
-  product:
+  products-service:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
-      - '3001:3001'
-    volumes:
-      - .:/app # Mount source code for hot reload
-      - /app/node_modules
+      - "5000:5000"
     environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/productdb
-    command: npm run start:dev
+      - MONGODB_URI=mongodb://mongodb:27017/products
+      - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - mongo
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
-  mongo:
+  mongodb:
     image: mongo:latest
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
 
 volumes:
-  mongo-data:
+  mongodb_data:
