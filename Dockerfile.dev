@@ -1,6 +1,6 @@
-FROM node:18
+FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
@@ -10,6 +10,6 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 3001
+EXPOSE 5000 5050
 
 CMD ["npm", "run", "start:dev"]
