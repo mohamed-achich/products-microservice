@@ -1,6 +1,8 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards, UseInterceptors } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { ProductsService } from './products.service';
+import { ServiceAuthGuard } from './security/guards/service.guard';
+import { AuthInterceptor } from './security/interceptors/auth.interceptor';
 
 interface Product {
   id: string;
@@ -8,6 +10,8 @@ interface Product {
   description: string;
   price: number;
   quantity: number;
+  category: string;
+  isActive: boolean;
 }
 
 interface ProductById {
@@ -19,14 +23,19 @@ interface CreateProductRequest {
   description: string;
   price: number;
   quantity: number;
+  category: string;
+  isActive: boolean;
 }
 
 interface UpdateProductRequest extends Product {}
 
 @Controller()
+@UseGuards(ServiceAuthGuard)
+@UseInterceptors(AuthInterceptor)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // Public endpoints - no auth required
   @GrpcMethod('ProductsService', 'FindAll')
   async findAll() {
     const products = await this.productsService.findAll();
@@ -34,22 +43,26 @@ export class ProductsController {
   }
 
   @GrpcMethod('ProductsService', 'FindOne')
-  findOne({ id }: { id: string }) {
+  async findOne({ id }: { id: string }) {
     return this.productsService.findOne(id);
   }
 
+  // Protected endpoints - require authentication
+  @UseGuards(ServiceAuthGuard)
   @GrpcMethod('ProductsService', 'Create')
-  create(data: CreateProductRequest) {
+  async create(data: CreateProductRequest) {
     return this.productsService.create(data);
   }
 
+  @UseGuards(ServiceAuthGuard)
   @GrpcMethod('ProductsService', 'Update')
-  update(data: UpdateProductRequest) {
+  async update(data: UpdateProductRequest) {
     return this.productsService.update(data.id, data);
   }
 
+  @UseGuards(ServiceAuthGuard)
   @GrpcMethod('ProductsService', 'Remove')
-  remove({ id }: { id: string }) {
+  async remove({ id }: { id: string }) {
     return this.productsService.remove(id);
   }
 }
