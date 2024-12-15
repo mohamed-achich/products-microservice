@@ -9,6 +9,8 @@ interface CreateProductRequest {
   description: string;
   price: number;
   quantity: number;
+  category: string;
+  isActive: boolean;
 }
 
 interface ProductList {
