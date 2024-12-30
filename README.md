@@ -1,8 +1,18 @@
-
-
 # Products Microservice
 
+[![CI/CD Pipeline](https://github.com/mohamed-achich/products-microservice/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mohamed-achich/products-microservice/actions)
+
+Part of the [E-commerce Platform](https://github.com/mohamed-achich/ecommerce-deployment) microservices architecture.
+
+## Overview
+
 A microservice responsible for managing product data in the e-commerce system. Built with NestJS and MongoDB, it provides both REST and gRPC endpoints for product management.
+
+## Related Services
+- [API Gateway](https://github.com/MohammedAhmedZakiuddin/api-gateway) - API Gateway and Authentication Service
+- [Users Service](https://github.com/MohammedAhmedZakiuddin/users-microservice) - User Management Service
+- [Orders Service](https://github.com/MohammedAhmedZakiuddin/orders-microservice) - Order Management Service
+- [E-commerce Deployment](https://github.com/MohammedAhmedZakiuddin/ecommerce-deployment) - Infrastructure and Deployment
 
 ## Features
 
@@ -13,21 +23,40 @@ A microservice responsible for managing product data in the e-commerce system. B
 - Health checks
 - Data seeding
 - Event-driven updates using RabbitMQ
+- Product inventory management
+- Category management
 
-## Product Schema
+## Technical Stack
+
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Database**: MongoDB
+- **ODM**: Mongoose
+- **Communication**: gRPC, REST
+- **Message Queue**: RabbitMQ
+- **Testing**: Jest
+- **CI/CD**: GitHub Actions
+
+## API Documentation
+
+### Product Schema
 
 ```typescript
 {
-  name: string;        // Required - Product name
-  description: string; // Required - Product description
-  price: number;       // Required - Product price
-  quantity: number;    // Required - Available quantity
-  category: string;    // Optional - Product category
-  isActive: boolean;   // Default: true - Product availability status
+  id: string;         // MongoDB ObjectId
+  name: string;       // Required - Product name
+  description: string;// Required - Product description
+  price: number;      // Required - Product price
+  quantity: number;   // Required - Available quantity
+  category: string;   // Optional - Product category
+  images: string[];   // Optional - Array of image URLs
+  isActive: boolean;  // Default: true - Product availability status
+  createdAt: Date;    // Creation timestamp
+  updatedAt: Date;    // Last update timestamp
 }
 ```
 
-## API Endpoints (gRPC)
+### gRPC Endpoints
 
 ```protobuf
 service ProductsService {
@@ -38,7 +67,8 @@ service ProductsService {
   // Protected endpoints - require authentication
   rpc Create (CreateProductRequest) returns (Product);
   rpc Update (UpdateProductRequest) returns (Product);
-  rpc Remove (ProductById) returns (Product);
+  rpc Remove (ProductById) returns (Empty);
+  rpc UpdateInventory (UpdateInventoryRequest) returns (Product);
 }
 ```
 
