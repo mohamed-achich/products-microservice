@@ -9,10 +9,10 @@ Part of the [E-commerce Platform](https://github.com/mohamed-achich/ecommerce-de
 A microservice responsible for managing product data in the e-commerce system. Built with NestJS and MongoDB, it provides both REST and gRPC endpoints for product management.
 
 ## Related Services
-- [API Gateway](https://github.com/MohammedAhmedZakiuddin/api-gateway) - API Gateway and Authentication Service
-- [Users Service](https://github.com/MohammedAhmedZakiuddin/users-microservice) - User Management Service
-- [Orders Service](https://github.com/MohammedAhmedZakiuddin/orders-microservice) - Order Management Service
-- [E-commerce Deployment](https://github.com/MohammedAhmedZakiuddin/ecommerce-deployment) - Infrastructure and Deployment
+- [API Gateway](https://github.com/mohamed-achich/api-gateway) - API Gateway and Authentication Service
+- [Users Service](https://github.com/mohamed-achich/users-microservice) - User Management Service
+- [Orders Service](https://github.com/mohamed-achich/orders-microservice) - Order Management Service
+- [E-commerce Deployment](https://github.com/mohamed-achich/ecommerce-deployment) - Infrastructure and Deployment
 
 ## Features
 
